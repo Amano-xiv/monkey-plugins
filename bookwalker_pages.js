@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         bookwalker pages
 // @namespace    bookwalker
-// @version      1.0
+// @version      1.1
 // @description  顯示產品頁數
 // @author       Amano
 // @match        https://www.bookwalker.com.tw/product/*
@@ -11,16 +11,58 @@
 
 (function () {
     'use strict';
-    const dataPage = JSON.parse(document.getElementById('app').getAttribute('data-page'));
-    let pages = dataPage.props.productData.product_detail_info.pages
-    const list = document.querySelector('.product-basic-info-list');
-    const itemDom = `
-        <li class="product-basic-info-item">
-            <span class="product-basic-info-item-title">頁數 ${pages}</span>
-        </li>
-    `;
-    const item = document.createElement('template');
-    item.innerHTML = itemDom.trim();
-    domElement = item.content.firstElementChild;
-    list.appendChild(domElement);
+
+    const ITEM_ID = 'amano-bookwalker-pages';
+
+    function getPages() {
+        const app = document.getElementById('app');
+        if (!app) return null;
+
+        const rawData = app.getAttribute('data-page');
+        if (!rawData) return null;
+
+        try {
+            const dataPage = JSON.parse(rawData);
+            return dataPage?.props?.productData?.product_detail_info?.pages ?? null;
+        } catch {
+            return null;
+        }
+    }
+
+    function insertPages() {
+        if (document.getElementById(ITEM_ID)) return true;
+
+        const list = document.querySelector('.product-basic-info-list');
+        const pages = getPages();
+
+        if (!list || !pages) return false;
+
+        const li = document.createElement('li');
+        li.id = ITEM_ID;
+        li.className = 'product-basic-info-item';
+
+        const span = document.createElement('span');
+        span.className = 'product-basic-info-item-title';
+        span.textContent = `頁數 ${pages}`;
+
+        li.appendChild(span);
+        list.appendChild(li);
+
+        return true;
+    }
+
+    window.addEventListener('load', () => {
+        if (insertPages()) return;
+
+        const observer = new MutationObserver(() => {
+            if (insertPages()) {
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
 })();
