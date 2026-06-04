@@ -45,6 +45,7 @@ function removeWaitList() {
             .split('&')
             .filter(item => item !== 'list=WL' && !item.startsWith('index='))
             .join('&');
+        // const url = location.href.replace(/^([^?]+)((\?|&)(v=[^&]+)(&.*)?)/,"$1?$4");
         location.replace(url);
     }
 }
