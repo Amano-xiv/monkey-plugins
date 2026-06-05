@@ -39,13 +39,15 @@
 
         const li = document.createElement('li');
         li.id = ITEM_ID;
-        li.className = 'product-basic-info-item';
 
-        const span = document.createElement('span');
-        span.className = 'product-basic-info-item-title';
-        span.textContent = `頁數 ${pageData.pages} 發售日 ${pageData.sell_date_start}`;
+        const div = document.createElement('div');
+        const pageDiv = document.createElement('div');
+        pageDiv.textContent = `頁數 ${pageData.pages}`;
+        const sellDateDiv = document.createElement('div');
+        sellDateDiv.textContent = `發售日 ${pageData.sell_date_start}`;
 
-        li.appendChild(span);
+        li.appendChild(pageDiv);
+        li.appendChild(sellDateDiv);
         list.appendChild(li);
 
         return true;
