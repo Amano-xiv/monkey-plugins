@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         bookwalker pages
 // @namespace    bookwalker
-// @version      1.1
+// @version      1.2
 // @description  顯示產品頁數
 // @author       Amano
 // @match        https://www.bookwalker.com.tw/product/*
@@ -23,7 +23,7 @@
 
         try {
             const dataPage = JSON.parse(rawData);
-            return dataPage?.props?.productData?.product_detail_info?.pages ?? null;
+            return dataPage?.props?.productData?.product_detail_info ?? null;
         } catch {
             return null;
         }
@@ -33,9 +33,9 @@
         if (document.getElementById(ITEM_ID)) return true;
 
         const list = document.querySelector('.product-basic-info-list');
-        const pages = getPages();
+        const pageData = getPages();
 
-        if (!list || !pages) return false;
+        if (!list || !pageData) return false;
 
         const li = document.createElement('li');
         li.id = ITEM_ID;
@@ -43,7 +43,7 @@
 
         const span = document.createElement('span');
         span.className = 'product-basic-info-item-title';
-        span.textContent = `頁數 ${pages}`;
+        span.textContent = `頁數 ${pageData.pages} 發售日 ${pageData.sell_date_start}`;
 
         li.appendChild(span);
         list.appendChild(li);
