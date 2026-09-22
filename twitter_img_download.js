@@ -14,6 +14,10 @@
     'use strict';
 
     const BUTTON_CLASS = 'twitter-img-download-button';
+    const imgSettings = {
+        nameBlock: null,
+        handle: 'unknown'
+    }
 
     const observer = new MutationObserver(() => {
         addButtonsToImages();
@@ -26,6 +30,17 @@
 
     function addButtonsToImages() {
         const images = document.querySelectorAll('img');
+        imgSettings.nameBlock = document.querySelector('div[data-testid="User-Name"]') || document.querySelector('div[data-testid="UserName"]');
+
+        if (imgSettings.nameBlock) {
+            const spans = imgSettings.nameBlock.querySelectorAll('span');
+            for (const s of spans) {
+                if (s.textContent.startsWith('@')) {
+                    imgSettings.handle = s.textContent.replace('@', '');
+                    break;
+                }
+            }
+        }
 
         for (const img of images) {
             if (!img.src.includes('pbs.twimg.com/media/')) continue;
@@ -83,31 +98,12 @@
         }
     }
 
-    async function downloadImageBlob(src, img) {
+    async function downloadImageBlob(src) {
         const finalUrl = new URL(src);
         finalUrl.searchParams.set('format', 'png');
         finalUrl.searchParams.set('name', '4096x4096');
-
-        const tweet = img.closest('article');
         let filename = finalUrl.pathname.split('/').pop();
-        if (tweet) {
-            // const user = tweet.querySelector('div[data-testid="User-Name"] span')?.textContent || 'unknown';
-            // const text = tweet.querySelector('div[lang]')?.textContent?.slice(0, 30).replace(/[\\/:*?"<>|]/g, '_') || '';
-
-            const nameBlock = tweet.querySelector('div[data-testid="User-Name"]');
-            let handle = 'unknown';
-            if (nameBlock) {
-                const spans = nameBlock.querySelectorAll('span');
-                for (const s of spans) {
-                    if (s.textContent.startsWith('@')) {
-                        handle = s.textContent.replace('@', '');
-                        break;
-                    }
-                }
-            }
-            filename = `${handle}_${filename}`;
-        }
-
+        filename = `${imgSettings.handle}_${filename}`;
         const response = await fetch(finalUrl.href);
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
